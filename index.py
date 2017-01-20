@@ -3,7 +3,7 @@
 import requests
 from BeautifulSoup import BeautifulSoup
 import time, cPickle, argparse
-import cv2
+import cv2, utils
 
 
 ap = argparse.ArgumentParser()
@@ -78,12 +78,15 @@ if args.index:
     sift = cv2.SIFT()
     total_kps = 0
     for pokemon in pdb:
-        # load sprite and convert to gray scale
+        # load sprite
         img = cv2.imread('./sprites/' + pokemon['sprite'])
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         # compute SIFT descriptors
-        kp, pokemon['descriptors'] = sift.detectAndCompute(gray, None)
-        total_kps += len(kp)
+        kp, pokemon['descriptors'] = utils.color_sift(sift, img)
+        if kp != None:
+            # print '[?] {} {}'.format(
+            #     len(pokemon['descriptors']),
+            #     pokemon['descriptors'][0].shape if len(pokemon['descriptors']) else 0)
+            total_kps += len(kp)
 
     # store DB with descriptors
     with open('./pdb.pkl', 'wb') as f:
